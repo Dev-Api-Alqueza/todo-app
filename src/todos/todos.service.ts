@@ -102,9 +102,7 @@ export class TodosService {
   }
 
   async updateModalTask(updatePayload: UpdateTodoDto): Promise<Todo> {
-    const { id, title, category, description } = await this.findOne(
-      updatePayload.id,
-    );
+    const { id } = await this.findOne(updatePayload.id);
 
     const updatedTask = {
       title: updatePayload.title,
@@ -124,7 +122,11 @@ export class TodosService {
   async updateTaskByStatus(id: number, status: Status): Promise<Todo> {
     const task = await this.findOne(id);
     const completion = task.setStatus(status);
-    const updatedTaskStatus = { id, status, completion } as UpdateTodoDto;
+    const updatedTaskStatus = {
+      id,
+      status,
+      completedAt: completion,
+    } as UpdateTodoDto;
 
     try {
       const updates = await this.todosRepository.update(id, updatedTaskStatus);
@@ -135,7 +137,7 @@ export class TodosService {
     }
   }
 
-  async updateTaskByPrioriy(id: number, priority: Priority): Promise<Todo> {
+  async updateTaskByPriority(id: number, priority: Priority): Promise<Todo> {
     await this.findOne(id);
     const updatedTaskPriority = { id, priority } as UpdateTodoDto;
 

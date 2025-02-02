@@ -54,7 +54,7 @@ export class TodosController {
 
   @Put("update")
   async updateTaskModal(
-    @Body() updateTaskModalDto: UpdateTaskModalDto,
+    @Body() updateTaskModalDto: UpdateTodoDto,
   ): Promise<Todo> {
     return this.todosService.updateModalTask(updateTaskModalDto);
   }
@@ -72,7 +72,7 @@ export class TodosController {
     @Param("id") id: number,
     @Param("priority") priority: Priority,
   ): Promise<Todo> {
-    return this.todosService.updateTaskByPrioriy(id, priority);
+    return this.todosService.updateTaskByPriority(id, priority);
   }
 
   @Put(":id/type=:type")
