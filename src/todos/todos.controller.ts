@@ -42,8 +42,7 @@ export class TodosController {
   }
 
   @Get("completed")
-  async getAllCompletedTasks(
-  ): Promise<GetCompletedTaskResponse[]> {
+  async getAllCompletedTasks(): Promise<GetCompletedTaskResponse[]> {
     const task = await this.todosService.getAllCompletedTask();
     return task.length !== 0 ? task : [];
   }
@@ -53,26 +52,18 @@ export class TodosController {
     return this.todosService.findOne(id);
   }
 
-  @Put()
+  @Put("update")
   async updateTaskModal(
-    @Body() updateTaskModalDto: UpdateTaskModalDto,
+    @Body() updateTaskModalDto: UpdateTodoDto,
   ): Promise<Todo> {
     return this.todosService.updateModalTask(updateTaskModalDto);
-  }
-
-  @Put(":id")
-  async update(
-    @Param("id") id: number,
-    @Body() updateTodoDto: UpdateTodoDto,
-  ): Promise<Todo> {
-    return this.todosService.update(id, updateTodoDto);
   }
 
   @Put(":id/status=:status")
   async updateTaskByStatus(
     @Param("id") id: number,
     @Param("status") status: Status,
-  ): Promise<UpdateStatusResponse> {
+  ): Promise<Todo> {
     return this.todosService.updateTaskByStatus(id, status);
   }
 
@@ -80,20 +71,20 @@ export class TodosController {
   async updateTaskByPriority(
     @Param("id") id: number,
     @Param("priority") priority: Priority,
-  ): Promise<UpdatePriorityResponse> {
-    return this.todosService.updateTaskByPrioriy(id, priority);
+  ): Promise<Todo> {
+    return this.todosService.updateTaskByPriority(id, priority);
   }
 
   @Put(":id/type=:type")
   async updateTaskByType(
     @Param("id") id: number,
     @Param("type") type: TaskType,
-  ): Promise<UpdateTaskTypeResponse> {
+  ): Promise<Todo> {
     return this.todosService.updateTaskByType(id, type);
   }
 
   @Delete(":id")
-  async remove(@Param("id") id: number): Promise<void> {
+  async remove(@Param("id") id: number): Promise<Todo> {
     return this.todosService.remove(id);
   }
 }

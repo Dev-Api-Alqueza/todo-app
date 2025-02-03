@@ -1,4 +1,3 @@
-// todos/todos.entity.ts
 import { IsEnum, IsOptional, IsString } from "class-validator";
 import {
   Column,
@@ -7,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Priority, Status } from "./enums";
+import { Priority, Status, TaskType } from "./enums";
 
 @Entity("users_tasks")
 export class Todo {
@@ -26,7 +25,7 @@ export class Todo {
   @Column({
     type: "enum",
     enum: Priority,
-    default: Priority.HIGH, // Default priority
+    default: Priority.HIGH,
   })
   @IsEnum(Priority)
   priority: Priority;
@@ -34,16 +33,18 @@ export class Todo {
   @Column({
     type: "enum",
     enum: Status,
-    default: Status.TODO, // Default status
+    default: Status.TODO,
   })
   @IsEnum(Status)
   status: Status;
 
   @Column({
-    type: "boolean",
-    default: true,
+    type: "enum",
+    enum: TaskType,
+    default: TaskType.Scheduled,
   })
-  isScheduled: boolean;
+  @IsEnum(TaskType)
+  category: TaskType;
 
   @CreateDateColumn()
   createdAt: Date;

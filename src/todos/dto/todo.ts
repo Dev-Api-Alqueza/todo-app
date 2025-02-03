@@ -1,14 +1,15 @@
-// todos/dto/todo.dto.ts
 import {
-  IsString,
-  IsOptional,
   IsEnum,
-  MaxLength,
   IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
 } from "class-validator";
-import { Priority } from "../enums/priority";
-import { Status } from "../enums/status";
-import { TaskType } from "../enums/taskType";
+import { Priority, Status, TaskType } from "../enums";
+class BaseDto {
+  @IsNumber()
+  id: number;
+}
 
 export class CreateTodoDto {
   @IsString()
@@ -32,7 +33,7 @@ export class CreateTodoDto {
   category?: TaskType = TaskType.Scheduled;
 }
 
-export class UpdateTodoDto {
+export class UpdateTodoDto extends BaseDto {
   @IsOptional()
   @IsString()
   @MaxLength(255)
@@ -49,19 +50,11 @@ export class UpdateTodoDto {
   @IsOptional()
   @IsEnum(Status)
   status?: Status;
-}
 
-export class DeleteTodoDto {
-  @IsNumber()
-  id: number;
-}
+  @IsOptional()
+  @IsEnum(TaskType)
+  category?: TaskType;
 
-export class TodoDto {
-  id: number;
-  title: string;
-  description?: string;
-  priority: Priority;
-  status: Status;
-  createdAt: Date;
-  updatedAt: Date;
+  @IsOptional()
+  completedAt?: Date;
 }
