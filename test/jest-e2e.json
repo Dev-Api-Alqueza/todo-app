@@ -11,7 +11,9 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
-    "@todo-app/utilities/(.*)": "<rootDir>/../libs/utilities/src/$1",
-    "@todo-app/utilities": "<rootDir>/../libs/utilities/src"
+    "@todo-app/utilities/(.*)": "<rootDir>/../libs/utilities/",
+    "@todo-app/utilities": "<rootDir>/../libs/utilities/",
+    "@todo-app/constants/(.*)": "<rootDir>/../libs/constants/",
+    "@todo-app/constants": "<rootDir>/../libs/constants/"
   }
 }

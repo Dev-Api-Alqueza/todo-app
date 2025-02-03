@@ -76,11 +76,11 @@
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
-      "<rootDir>/src/",
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@todo-app/utilities(|/.*)$": "<rootDir>/libs/utilities/src/$1"
+      "^@todo-app/utilities(|/.*)$": "<rootDir>/libs/utilities/",
+      "^@todo-app/constants(|/.*)$": "<rootDir>/libs/constants/"
     }
   }
 }

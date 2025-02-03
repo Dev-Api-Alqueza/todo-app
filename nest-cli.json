@@ -11,9 +11,18 @@
       "type": "library",
       "root": "libs/utilities",
       "entryFile": "index",
-      "sourceRoot": "libs/utilities/src",
+      "sourceRoot": "libs/utilities/",
       "compilerOptions": {
         "tsConfigPath": "libs/utilities/tsconfig.lib.json"
+      }
+    },
+    "constants": {
+      "type": "library",
+      "root": "libs/constants",
+      "entryFile": "index",
+      "sourceRoot": "libs/constants/",
+      "compilerOptions": {
+        "tsConfigPath": "libs/constants/tsconfig.lib.json"
       }
     }
   }

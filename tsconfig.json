@@ -18,12 +18,12 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@todo-app/utilities": [
-        "libs/utilities/src"
-      ],
-      "@todo-app/utilities/*": [
-        "libs/utilities/src/*"
-      ]
+      "@todo-app/utilities": ["libs/utilities/"],
+      "@todo-app/utilities/*": ["libs/utilities/*"],
+      "@todo-app/constants": ["libs/constants/"],
+      "@todo-app/constants/*": ["libs/constants/*"],
+      "@todo-app/interfaces": ["libs/interfaces"],
+      "@todo-app/interfaces/*": ["libs/interfaces/*"]
     }
   }
 }

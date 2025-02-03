@@ -8,6 +8,7 @@ import {
 } from "class-validator";
 import { Status } from "../enums/status";
 import { Priority } from "../enums/priority";
+import { TaskType } from "../enums/taskType";
 
 class BaseDto {
   @IsNumber()
@@ -27,10 +28,9 @@ export class UpdateTaskDto extends BaseDto {
   completedAt: Date;
 }
 
-export class UpdateTodoDto {
+export class UpdateTaskModalDto extends BaseDto {
   @IsOptional()
   @IsString()
-  @MaxLength(255)
   title?: string;
 
   @IsOptional()
@@ -38,10 +38,12 @@ export class UpdateTodoDto {
   description?: string;
 
   @IsOptional()
-  @IsEnum(Priority)
-  priority?: Priority;
+  @IsEnum(TaskType)
+  category?: TaskType;
+}
 
-  @IsOptional()
-  @IsEnum(Status)
-  status?: Status;
+export class UpdateTaskModal {
+  title: string;
+  description: string;
+  isScheduled: boolean;
 }
