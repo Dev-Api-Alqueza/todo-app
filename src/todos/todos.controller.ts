@@ -33,14 +33,22 @@ export class TodosController {
     return this.todosService.create(createTodoDto);
   }
 
+  @Post("completed")
+  async getAllCompletedTasks(
+    @Body() getDateDto: GetDateTodoDto,
+  ): Promise<GetCompletedTaskResponse[]> {
+    const task = await this.todosService.getAllCompletedTask(getDateDto.date);
+    return task.length !== 0 ? task : [];
+  }
+
+  @Post("getByDate")
+  async getAllTaskByDate(@Body() getDateDto: GetDateTodoDto): Promise<Todo[]> {
+    return this.todosService.getAllTaskByDate(getDateDto.date);
+  }
+
   @Get()
   async getAllTask(): Promise<Todo[]> {
     return this.todosService.getAllTask();
-  }
-
-  @Get("getByDate")
-  async getAllTaskByDate(@Body() getDateDto: GetDateTodoDto): Promise<Todo[]> {
-    return this.todosService.getAllTaskByDate(getDateDto.date);
   }
 
   @Get()
@@ -49,14 +57,6 @@ export class TodosController {
       return this.todosService.getFilteredTodos(priority);
     }
     return this.todosService.findAll();
-  }
-
-  @Get("completed")
-  async getAllCompletedTasks(
-    @Body() getDateDto: GetDateTodoDto,
-  ): Promise<GetCompletedTaskResponse[]> {
-    const task = await this.todosService.getAllCompletedTask(getDateDto.date);
-    return task.length !== 0 ? task : [];
   }
 
   @Get(":id")
