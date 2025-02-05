@@ -55,6 +55,18 @@ export class TodosService {
     }
   }
 
+  async getAllTaskByDate(created: string): Promise<Todo[]> {
+    try {
+      const tasks = await this.todosRepository
+        .createQueryBuilder("users_tasks")
+        .where(`Date(users_tasks.createdAt) = :created`, { created })
+        .getMany();
+      return tasks;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async getFilteredTodos(priority: Priority): Promise<Todo[]> {
     try {
       const todos = await this.todosRepository.find({
@@ -68,11 +80,16 @@ export class TodosService {
     }
   }
 
-  async getAllCompletedTask(): Promise<GetCompletedTaskResponse[]> {
-    const tasks = await this.todosRepository.find({
-      where: { status: Status.COMPLETED },
-      order: { completedAt: "ASC" },
-    });
+  async getAllCompletedTask(
+    completed: string,
+  ): Promise<GetCompletedTaskResponse[]> {
+    const tasks = await this.todosRepository
+      .createQueryBuilder("user_task")
+      .where(
+        `user_task.status = :status AND DATE(user_task.completedAt) = :completed`,
+        { status: Status.COMPLETED, completed },
+      )
+      .getMany();
     const filteredTask = tasks.map((item) => ({
       ...item,
       effortBurn: effortBurnComputation(item.createdAt, item.completedAt),
