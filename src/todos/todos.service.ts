@@ -1,30 +1,10 @@
 // todos/todos.service.ts
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import {
-  GetCompletedTaskResponse,
-  UpdatePriorityResponse,
-  UpdateStatusResponse,
-  UpdateTaskTypeResponse,
-} from "@todo-app/interfaces";
-import {
-  effortBurnComputation,
-  isEmpty,
-  isScheduled,
-  isZeroOrNull,
-} from "@todo-app/utilities";
+import { GetCompletedTaskResponse } from "@todo-app/interfaces";
+import { effortBurnComputation } from "@todo-app/utilities";
 import { Repository } from "typeorm";
-import {
-  CreateTodoDto,
-  UpdateTaskDto,
-  UpdateTaskModal,
-  UpdateTaskModalDto,
-  UpdateTodoDto,
-} from "./dto";
+import { CreateTodoDto, UpdateTodoDto } from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
 
