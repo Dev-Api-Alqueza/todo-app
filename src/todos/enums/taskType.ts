@@ -1,4 +1,4 @@
 export enum TaskType {
-  Scheduled = "scheduled",
-  Unscheduled = "unscheduled",
+  SCHEDULED = "scheduled",
+  UN_SCHEDULED = "unscheduled",
 }

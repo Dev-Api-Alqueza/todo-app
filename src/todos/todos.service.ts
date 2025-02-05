@@ -163,6 +163,25 @@ export class TodosService {
     }
   }
 
+  async updateTaskImportance(id: number, importance: boolean): Promise<Todo> {
+    await this.findOne(id);
+    const updateTaskImportance = {
+      id,
+      importance,
+    } as UpdateTodoDto;
+
+    try {
+      const updatedTask = await this.todosRepository.update(
+        id,
+        updateTaskImportance,
+      );
+
+      return updatedTask as any as Todo;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async remove(id: number): Promise<Todo> {
     const todo = await this.findOne(id);
 

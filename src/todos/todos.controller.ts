@@ -8,21 +8,11 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
-import {
-  CreateTodoDto,
-  UpdateTodoDto,
-  UpdateTaskModalDto,
-  GetDateTodoDto,
-} from "./dto";
+import { GetCompletedTaskResponse } from "@todo-app/interfaces";
+import { CreateTodoDto, GetDateTodoDto, UpdateTodoDto } from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
 import { TodosService } from "./todos.service";
-import {
-  UpdatePriorityResponse,
-  UpdateStatusResponse,
-  UpdateTaskTypeResponse,
-  GetCompletedTaskResponse,
-} from "@todo-app/interfaces";
 
 @Controller("todos")
 export class TodosController {
@@ -93,6 +83,14 @@ export class TodosController {
     @Param("type") type: TaskType,
   ): Promise<Todo> {
     return this.todosService.updateTaskByType(id, type);
+  }
+
+  @Put(":id/importance=:importance")
+  async updateTaskImportance(
+    @Param("id") id: number,
+    @Param("importance") importance: boolean,
+  ): Promise<Todo> {
+    return this.todosService.updateTaskImportance(id, importance);
   }
 
   @Delete(":id")

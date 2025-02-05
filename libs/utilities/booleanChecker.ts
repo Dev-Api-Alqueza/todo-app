@@ -8,5 +8,5 @@ export const isZeroOrNull = (value: number) => {
 };
 
 export const isScheduled = (value: string) => {
-  return value == TaskType.Scheduled ? true : false;
+  return value == TaskType.SCHEDULED ? true : false;
 };

@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -30,7 +31,7 @@ export class CreateTodoDto {
 
   @IsOptional()
   @IsEnum(TaskType)
-  category?: TaskType = TaskType.Scheduled;
+  category?: TaskType = TaskType.SCHEDULED;
 }
 
 export class UpdateTodoDto extends BaseDto {
@@ -54,6 +55,10 @@ export class UpdateTodoDto extends BaseDto {
   @IsOptional()
   @IsEnum(TaskType)
   category?: TaskType;
+
+  @IsOptional()
+  @IsBoolean()
+  importance?: boolean;
 
   @IsOptional()
   completedAt?: Date;

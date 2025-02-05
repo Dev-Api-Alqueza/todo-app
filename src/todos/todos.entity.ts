@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsEnum, IsOptional, IsString } from "class-validator";
 import {
   Column,
   CreateDateColumn,
@@ -41,10 +41,18 @@ export class Todo {
   @Column({
     type: "enum",
     enum: TaskType,
-    default: TaskType.Scheduled,
+    default: TaskType.SCHEDULED,
   })
   @IsEnum(TaskType)
   category: TaskType;
+
+  @Column({
+    type: "boolean",
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  importance?: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
