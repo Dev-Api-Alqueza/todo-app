@@ -8,7 +8,12 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
-import { CreateTodoDto, UpdateTodoDto, UpdateTaskModalDto } from "./dto";
+import {
+  CreateTodoDto,
+  UpdateTodoDto,
+  UpdateTaskModalDto,
+  GetDateTodoDto,
+} from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
 import { TodosService } from "./todos.service";
@@ -33,6 +38,11 @@ export class TodosController {
     return this.todosService.getAllTask();
   }
 
+  @Get("getByDate")
+  async getAllTaskByDate(@Body() getDateDto: GetDateTodoDto): Promise<Todo[]> {
+    return this.todosService.getAllTaskByDate(getDateDto.date);
+  }
+
   @Get()
   async findAll(@Query("priority") priority?: Priority): Promise<Todo[]> {
     if (priority) {
@@ -42,8 +52,10 @@ export class TodosController {
   }
 
   @Get("completed")
-  async getAllCompletedTasks(): Promise<GetCompletedTaskResponse[]> {
-    const task = await this.todosService.getAllCompletedTask();
+  async getAllCompletedTasks(
+    @Body() getDateDto: GetDateTodoDto,
+  ): Promise<GetCompletedTaskResponse[]> {
+    const task = await this.todosService.getAllCompletedTask(getDateDto.date);
     return task.length !== 0 ? task : [];
   }
 

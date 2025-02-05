@@ -58,3 +58,8 @@ export class UpdateTodoDto extends BaseDto {
   @IsOptional()
   completedAt?: Date;
 }
+
+export class GetDateTodoDto {
+  @IsString()
+  date: string;
+}

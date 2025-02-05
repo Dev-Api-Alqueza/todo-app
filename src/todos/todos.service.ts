@@ -1,30 +1,10 @@
 // todos/todos.service.ts
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import {
-  GetCompletedTaskResponse,
-  UpdatePriorityResponse,
-  UpdateStatusResponse,
-  UpdateTaskTypeResponse,
-} from "@todo-app/interfaces";
-import {
-  effortBurnComputation,
-  isEmpty,
-  isScheduled,
-  isZeroOrNull,
-} from "@todo-app/utilities";
+import { GetCompletedTaskResponse } from "@todo-app/interfaces";
+import { effortBurnComputation } from "@todo-app/utilities";
 import { Repository } from "typeorm";
-import {
-  CreateTodoDto,
-  UpdateTaskDto,
-  UpdateTaskModal,
-  UpdateTaskModalDto,
-  UpdateTodoDto,
-} from "./dto";
+import { CreateTodoDto, UpdateTodoDto } from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
 
@@ -75,6 +55,18 @@ export class TodosService {
     }
   }
 
+  async getAllTaskByDate(created: string): Promise<Todo[]> {
+    try {
+      const tasks = await this.todosRepository
+        .createQueryBuilder("users_tasks")
+        .where(`Date(users_tasks.createdAt) = :created`, { created })
+        .getMany();
+      return tasks;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async getFilteredTodos(priority: Priority): Promise<Todo[]> {
     try {
       const todos = await this.todosRepository.find({
@@ -88,11 +80,16 @@ export class TodosService {
     }
   }
 
-  async getAllCompletedTask(): Promise<GetCompletedTaskResponse[]> {
-    const tasks = await this.todosRepository.find({
-      where: { status: Status.COMPLETED },
-      order: { completedAt: "ASC" },
-    });
+  async getAllCompletedTask(
+    completed: string,
+  ): Promise<GetCompletedTaskResponse[]> {
+    const tasks = await this.todosRepository
+      .createQueryBuilder("user_task")
+      .where(
+        `user_task.status = :status AND DATE(user_task.completedAt) = :completed`,
+        { status: Status.COMPLETED, completed },
+      )
+      .getMany();
     const filteredTask = tasks.map((item) => ({
       ...item,
       effortBurn: effortBurnComputation(item.createdAt, item.completedAt),
