@@ -1,3 +1,3 @@
 export * from "./todo";
 export * from "./update";
-export * from "./task";
+export * from "../../notes/dto/task";

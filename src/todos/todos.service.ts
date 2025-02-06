@@ -7,7 +7,7 @@ import {
 } from "@todo-app/interfaces";
 import { effortBurnComputation } from "@todo-app/utilities";
 import { Repository } from "typeorm";
-import { CreateTodoDto, UpdateTodoDto } from "./dto";
+import { CreateTodoDto, CreateTaskNoteDto, UpdateTodoDto } from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
 import { DayOfTheWeek } from "@todo-app/constants";
