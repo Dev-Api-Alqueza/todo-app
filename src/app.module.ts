@@ -5,7 +5,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import appConfig from "./config/app.config";
 import { Todo } from "./todos/todos.entity";
 import { TodosModule } from "./todos/todos.module";
-import { TaskNote } from "./todos/taskNote.entity";
+import { TaskNote } from "./notes/taskNote.entity";
+import { TaskNoteModule } from "./notes/notes.module";
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { TaskNote } from "./todos/taskNote.entity";
       inject: [ConfigService],
     }),
     TodosModule,
+    TaskNoteModule,
   ],
 })
 export class AppModule {}

@@ -11,7 +11,7 @@ export class TaskNote {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: "timestamp" })
+  @Column()
   createdAt: Date;
 
   @UpdateDateColumn()

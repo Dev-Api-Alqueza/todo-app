@@ -8,7 +8,12 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
-import { CreateTodoDto, UpdateTodoDto, GetDateTodoDto } from "./dto";
+import {
+  CreateTodoDto,
+  UpdateTodoDto,
+  GetDateTodoDto,
+  CreateTaskNoteDto,
+} from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
 import { TodosService } from "./todos.service";
@@ -24,11 +29,6 @@ export class TodosController {
   @Post()
   async create(@Body() createTodoDto: CreateTodoDto): Promise<Todo> {
     return this.todosService.create(createTodoDto);
-  }
-
-  @Post("addNote")
-  async createNote() {
-    return null;
   }
 
   @Post("completed")
