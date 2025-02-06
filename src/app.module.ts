@@ -25,7 +25,7 @@ import { TaskNote } from "./todos/taskNote.entity";
           password: dbConfig.password,
           database: dbConfig.database,
           entities: [Todo, TaskNote],
-          synchronize: true, //process.env.NODE_ENV !== "production",
+          synchronize: process.env.NODE_ENV !== "production",
         };
       },
       inject: [ConfigService],
