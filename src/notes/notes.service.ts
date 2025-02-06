@@ -43,6 +43,7 @@ export class TaskNoteService {
       throw err;
     }
   }
+
   async updateNote(updateNoteDto: UpdateNoteDto): Promise<TaskNote> {
     try {
       const note = await this.taskRepository.findOne({
