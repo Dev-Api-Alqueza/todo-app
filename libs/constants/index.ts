@@ -1,1 +1,1 @@
-
+export * from "./dayOfTheWeek";

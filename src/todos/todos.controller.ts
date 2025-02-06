@@ -8,11 +8,14 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
-import { GetCompletedTaskResponse } from "@todo-app/interfaces";
-import { CreateTodoDto, GetDateTodoDto, UpdateTodoDto } from "./dto";
+import { CreateTodoDto, UpdateTodoDto, GetDateTodoDto } from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
 import { TodosService } from "./todos.service";
+import {
+  GetCompletedTaskResponse,
+  GetWeeklyTaskResponse,
+} from "@todo-app/interfaces";
 
 @Controller("todos")
 export class TodosController {
@@ -21,6 +24,11 @@ export class TodosController {
   @Post()
   async create(@Body() createTodoDto: CreateTodoDto): Promise<Todo> {
     return this.todosService.create(createTodoDto);
+  }
+
+  @Post("addNote")
+  async createNote() {
+    return null;
   }
 
   @Post("completed")
@@ -47,6 +55,11 @@ export class TodosController {
       return this.todosService.getFilteredTodos(priority);
     }
     return this.todosService.findAll();
+  }
+
+  @Get("getWeeklyTasks")
+  async getAllWeeklyTasks(): Promise<GetWeeklyTaskResponse> {
+    return this.todosService.getWeeklyTasks();
   }
 
   @Get(":id")
