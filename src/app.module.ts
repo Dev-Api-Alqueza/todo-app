@@ -5,6 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import appConfig from "./config/app.config";
 import { Todo } from "./todos/todos.entity";
 import { TodosModule } from "./todos/todos.module";
+import { TaskNote } from "./todos/taskNote.entity";
 
 @Module({
   imports: [
@@ -23,8 +24,8 @@ import { TodosModule } from "./todos/todos.module";
           username: dbConfig.username,
           password: dbConfig.password,
           database: dbConfig.database,
-          entities: [Todo],
-          synchronize: process.env.NODE_ENV !== "production",
+          entities: [Todo, TaskNote],
+          synchronize: true, //process.env.NODE_ENV !== "production",
         };
       },
       inject: [ConfigService],

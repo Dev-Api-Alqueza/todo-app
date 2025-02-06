@@ -54,19 +54,22 @@ export class Todo {
   @IsBoolean()
   importance?: boolean;
 
-  @CreateDateColumn()
+  @Column()
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   updatedAt: Date;
+  setStatusInProgress(status: Status) {
+    return status === Status.IN_PROGRESS
+      ? (this.updatedAt = new Date())
+      : (this.updatedAt = this.updatedAt);
+  }
 
   @Column({ type: "timestamp", nullable: true })
   completedAt: Date;
-  setStatus(status: Status) {
-    if (status === Status.COMPLETED) {
-      return (this.completedAt = new Date());
-    } else {
-      return (this.completedAt = null);
-    }
+  setStatusCompleted(status: Status) {
+    return status === Status.COMPLETED
+      ? (this.completedAt = new Date())
+      : (this.completedAt = null);
   }
 }

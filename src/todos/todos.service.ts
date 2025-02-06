@@ -1,12 +1,16 @@
 // todos/todos.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { GetCompletedTaskResponse } from "@todo-app/interfaces";
+import {
+  GetCompletedTaskResponse,
+  GetWeeklyTaskResponse,
+} from "@todo-app/interfaces";
 import { effortBurnComputation } from "@todo-app/utilities";
 import { Repository } from "typeorm";
 import { CreateTodoDto, UpdateTodoDto } from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
+import { DayOfTheWeek } from "@todo-app/constants";
 
 @Injectable()
 export class TodosService {
@@ -67,6 +71,44 @@ export class TodosService {
     }
   }
 
+  async getWeeklyTasks(): Promise<GetWeeklyTaskResponse> {
+    try {
+      interface TaskQueryResponse {
+        day_of_week: string;
+        completed_count: string;
+        incomplete_count: string;
+      }
+
+      const tasks = (await this.todosRepository
+        .createQueryBuilder("users_tasks")
+        .select(
+          `DAYNAME(createdAt) AS day_of_week, 
+          COUNT(CASE WHEN STATUS = 'completed' THEN 1 END) AS completed_count,
+          COUNT(CASE WHEN STATUS != 'completed' THEN 1 END) AS incomplete_count`,
+        )
+        .where(
+          `users_tasks.createdAt BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL (DAYOFWEEK(CURRENT_DATE)-1) DAY)
+          AND DATE_ADD(CURRENT_DATE, INTERVAL (8 - DAYOFWEEK(CURRENT_DATE)) DAY)
+          GROUP BY DAYOFWEEK(createdAt) 
+          ORDER BY FIELD(DAYOFWEEK(createdAt), 2, 3, 4, 5, 6, 7, 1);`,
+        )
+        .execute()) as TaskQueryResponse[];
+
+      const result = DayOfTheWeek.reduce((acc, day) => {
+        const dayData = tasks.find((item) => item.day_of_week === day);
+        acc[day] = {
+          complete: dayData ? dayData.completed_count : "0",
+          incomplete: dayData ? dayData.incomplete_count : "0",
+        };
+        return acc;
+      }, {});
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   async getFilteredTodos(priority: Priority): Promise<Todo[]> {
     try {
       const todos = await this.todosRepository.find({
@@ -92,7 +134,7 @@ export class TodosService {
       .getMany();
     const filteredTask = tasks.map((item) => ({
       ...item,
-      effortBurn: effortBurnComputation(item.createdAt, item.completedAt),
+      effortBurn: effortBurnComputation(item.updatedAt, item.completedAt),
     }));
 
     return filteredTask;
@@ -118,10 +160,12 @@ export class TodosService {
 
   async updateTaskByStatus(id: number, status: Status): Promise<Todo> {
     const task = await this.findOne(id);
-    const completion = task.setStatus(status);
+    const completion = task.setStatusCompleted(status);
+    const updated = task.setStatusInProgress(status);
     const updatedTaskStatus = {
       id,
       status,
+      updatedAt: updated,
       completedAt: completion,
     } as UpdateTodoDto;
 

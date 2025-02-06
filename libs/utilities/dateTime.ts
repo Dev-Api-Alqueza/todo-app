@@ -1,7 +1,7 @@
-export const effortBurnComputation = (created: Date, completed: Date) => {
-  const create = new Date(created);
+export const effortBurnComputation = (updated: Date, completed: Date) => {
+  const update = new Date(updated);
   const complete = new Date(completed);
-  const effortBurn = (complete.getTime() - create.getTime()) / (1000 * 60);
+  const effortBurn = (complete.getTime() - update.getTime()) / (1000 * 60);
   if (isNaN(effortBurn)) {
     return 0;
   }
