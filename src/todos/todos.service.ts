@@ -3,11 +3,17 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
   GetCompletedTaskResponse,
+  GetSummaryResponse,
   GetWeeklyTaskResponse,
 } from "@todo-app/interfaces";
 import { effortBurnComputation } from "@todo-app/utilities";
 import { Repository } from "typeorm";
-import { CreateTodoDto, CreateTaskNoteDto, UpdateTodoDto } from "./dto";
+import {
+  CreateTodoDto,
+  UpdateTodoDto,
+  GetDateTodoDto,
+  GetWeeklyTodoDto,
+} from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
 import { DayOfTheWeek } from "@todo-app/constants";
@@ -59,11 +65,16 @@ export class TodosService {
     }
   }
 
-  async getAllTaskByDate(created: string): Promise<Todo[]> {
+  async getAllTaskByDate(getTaskDto: GetDateTodoDto): Promise<Todo[]> {
     try {
       const tasks = await this.todosRepository
         .createQueryBuilder("users_tasks")
-        .where(`Date(users_tasks.createdAt) = :created`, { created })
+        .where(`Date(createdAt) = :created AND category = :category`, {
+          created: getTaskDto.date,
+          category: getTaskDto.category,
+        })
+        .orderBy("category", "ASC")
+        .addOrderBy("priority", "ASC")
         .getMany();
       return tasks;
     } catch (err) {
@@ -71,7 +82,9 @@ export class TodosService {
     }
   }
 
-  async getWeeklyTasks(): Promise<GetWeeklyTaskResponse> {
+  async getWeeklyTasks(
+    getWeekly: GetWeeklyTodoDto,
+  ): Promise<GetWeeklyTaskResponse> {
     try {
       interface TaskQueryResponse {
         day_of_week: string;
@@ -87,10 +100,11 @@ export class TodosService {
           COUNT(CASE WHEN STATUS != 'completed' THEN 1 END) AS incomplete_count`,
         )
         .where(
-          `users_tasks.createdAt BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL (DAYOFWEEK(CURRENT_DATE)-1) DAY)
+          `category = :category AND createdAt BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL (DAYOFWEEK(CURRENT_DATE)-1) DAY)
           AND DATE_ADD(CURRENT_DATE, INTERVAL (8 - DAYOFWEEK(CURRENT_DATE)) DAY)
           GROUP BY DAYOFWEEK(createdAt) 
           ORDER BY FIELD(DAYOFWEEK(createdAt), 2, 3, 4, 5, 6, 7, 1);`,
+          { ...getWeekly },
         )
         .execute()) as TaskQueryResponse[];
 
@@ -103,6 +117,35 @@ export class TodosService {
         return acc;
       }, {});
 
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getSummaryTasks(
+    summaryDto: GetDateTodoDto,
+  ): Promise<GetSummaryResponse> {
+    try {
+      interface Summary {
+        completed_count: string;
+        inprogress_count: string;
+        todo_count: string;
+      }
+      const tasks = await this.todosRepository
+        .createQueryBuilder("users_tasks")
+        .select(
+          `COUNT(CASE WHEN STATUS = 'completed' THEN 1 END) AS completed_count,
+	      COUNT(CASE WHEN STATUS = 'in_progress' THEN 1 END) AS inprogress_count,
+        COUNT(CASE WHEN STATUS = 'todo' THEN 1 END) AS todo_count`,
+        )
+        .where("Date(createdAt) = :created", { created: summaryDto.date })
+        .execute();
+      const result = tasks.map((x: Summary) => ({
+        completed: x.completed_count,
+        inprogress: x.inprogress_count,
+        todo: x.todo_count,
+      }));
       return result;
     } catch (err) {
       throw err;
@@ -123,14 +166,20 @@ export class TodosService {
   }
 
   async getAllCompletedTask(
-    completed: string,
+    getTaskDto: GetDateTodoDto,
   ): Promise<GetCompletedTaskResponse[]> {
     const tasks = await this.todosRepository
-      .createQueryBuilder("user_task")
+      .createQueryBuilder("users_tasks")
       .where(
-        `user_task.status = :status AND DATE(user_task.completedAt) = :completed`,
-        { status: Status.COMPLETED, completed },
+        `status = :status AND DATE(completedAt) = :completed AND category = :category`,
+        {
+          status: Status.COMPLETED,
+          completed: getTaskDto.date,
+          category: getTaskDto.category,
+        },
       )
+      .orderBy("category", "ASC")
+      .addOrderBy("priority", "ASC")
       .getMany();
     const filteredTask = tasks.map((item) => ({
       ...item,

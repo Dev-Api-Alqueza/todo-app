@@ -12,13 +12,14 @@ import {
   CreateTodoDto,
   UpdateTodoDto,
   GetDateTodoDto,
-  CreateTaskNoteDto,
+  GetWeeklyTodoDto,
 } from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
 import { TodosService } from "./todos.service";
 import {
   GetCompletedTaskResponse,
+  GetSummaryResponse,
   GetWeeklyTaskResponse,
 } from "@todo-app/interfaces";
 
@@ -35,13 +36,27 @@ export class TodosController {
   async getAllCompletedTasks(
     @Body() getDateDto: GetDateTodoDto,
   ): Promise<GetCompletedTaskResponse[]> {
-    const task = await this.todosService.getAllCompletedTask(getDateDto.date);
+    const task = await this.todosService.getAllCompletedTask(getDateDto);
     return task.length !== 0 ? task : [];
   }
 
   @Post("getByDate")
   async getAllTaskByDate(@Body() getDateDto: GetDateTodoDto): Promise<Todo[]> {
-    return this.todosService.getAllTaskByDate(getDateDto.date);
+    return this.todosService.getAllTaskByDate(getDateDto);
+  }
+
+  @Post("getWeeklyTasks")
+  async getAllWeeklyTasks(
+    @Body() getWeeklyDto: GetWeeklyTodoDto,
+  ): Promise<GetWeeklyTaskResponse> {
+    return this.todosService.getWeeklyTasks(getWeeklyDto);
+  }
+
+  @Post("summary")
+  async getSummaryTask(
+    @Body() summaryDto: GetDateTodoDto,
+  ): Promise<GetSummaryResponse> {
+    return this.todosService.getSummaryTasks(summaryDto);
   }
 
   @Get()
@@ -55,11 +70,6 @@ export class TodosController {
       return this.todosService.getFilteredTodos(priority);
     }
     return this.todosService.findAll();
-  }
-
-  @Get("getWeeklyTasks")
-  async getAllWeeklyTasks(): Promise<GetWeeklyTaskResponse> {
-    return this.todosService.getWeeklyTasks();
   }
 
   @Get(":id")
