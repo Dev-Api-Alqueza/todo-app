@@ -71,4 +71,12 @@ export class UpdateTodoDto extends BaseDto {
 export class GetDateTodoDto {
   @IsString()
   date: string;
+  @IsOptional()
+  @IsEnum(TaskType)
+  category: TaskType = TaskType.SCHEDULED;
+}
+
+export class GetWeeklyTodoDto {
+  @IsEnum(TaskType)
+  category: TaskType = TaskType.SCHEDULED;
 }

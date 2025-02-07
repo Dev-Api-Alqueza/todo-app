@@ -19,3 +19,8 @@ export interface GetWeeklyTaskResponse {
   Saturday?: WeeklyCount;
   Sunday?: WeeklyCount;
 }
+export interface GetSummaryResponse {
+  completed: string;
+  inprogress: string;
+  todo: string;
+}
