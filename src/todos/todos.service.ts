@@ -139,7 +139,10 @@ export class TodosService {
 	      COUNT(CASE WHEN STATUS = 'in_progress' THEN 1 END) AS inprogress_count,
         COUNT(CASE WHEN STATUS = 'todo' THEN 1 END) AS todo_count`,
         )
-        .where("Date(createdAt) = :created", { created: summaryDto.date })
+        .where("Date(createdAt) = :created AND category = :category", {
+          created: summaryDto.date,
+          category: summaryDto.category,
+        })
         .execute();
       const result = tasks.map((x: Summary) => ({
         completed: x.completed_count,
