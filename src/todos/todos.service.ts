@@ -90,38 +90,44 @@ export class TodosService {
         day_of_week: string;
         completed_count: string;
         incomplete_count: string;
+        date: string;
       }
-
       const tasks = (await this.todosRepository
         .createQueryBuilder("users_tasks")
         .select(
-          `DAYNAME(createdAt) AS day_of_week, 
+          `DAYNAME(createdAt) AS day_of_week,
+          DATE(createdAt) AS date,
           COUNT(CASE WHEN STATUS = 'completed' THEN 1 END) AS completed_count,
-          COUNT(CASE WHEN STATUS != 'completed' THEN 1 END) AS incomplete_count`,
+          COUNT(CASE WHEN STATUS != 'completed' THEN 1 END) AS incomplete_count`
         )
         .where(
-          `category = :category AND createdAt BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL (DAYOFWEEK(CURRENT_DATE)-1) DAY)
-          AND DATE_ADD(CURRENT_DATE, INTERVAL (8 - DAYOFWEEK(CURRENT_DATE)) DAY)
-          GROUP BY DAYOFWEEK(createdAt) 
-          ORDER BY FIELD(DAYOFWEEK(createdAt), 2, 3, 4, 5, 6, 7, 1);`,
-          { ...getWeekly },
+          `category = :category 
+          AND createdAt BETWEEN 
+            DATE_SUB(CURRENT_DATE, INTERVAL WEEKDAY(CURRENT_DATE) DAY)
+            AND 
+            DATE_ADD(DATE_SUB(CURRENT_DATE, INTERVAL WEEKDAY(CURRENT_DATE) DAY), INTERVAL 7 DAY)`,
+          { ...getWeekly }
         )
-        .execute()) as TaskQueryResponse[];
-
+        .groupBy("DAYOFWEEK(createdAt), DATE(createdAt)")
+        .orderBy("FIELD(DAYOFWEEK(createdAt), 2, 3, 4, 5, 6, 7, 1)")
+        .execute()) as TaskQueryResponse[];      
+  
       const result = DayOfTheWeek.reduce((acc, day) => {
         const dayData = tasks.find((item) => item.day_of_week === day);
         acc[day] = {
+          date: dayData ? dayData.date : null,
           complete: dayData ? dayData.completed_count : "0",
           incomplete: dayData ? dayData.incomplete_count : "0",
         };
         return acc;
       }, {});
-
+  
       return result;
     } catch (err) {
       throw err;
     }
   }
+  
 
   async getSummaryTasks(
     summaryDto: GetDateTodoDto,
@@ -135,7 +141,7 @@ export class TodosService {
       const tasks = await this.todosRepository
         .createQueryBuilder("users_tasks")
         .select(
-          `COUNT(CASE WHEN STATUS = 'completed' THEN 1 END) AS completed_count,
+        `COUNT(CASE WHEN STATUS = 'completed' THEN 1 END) AS completed_count,
 	      COUNT(CASE WHEN STATUS = 'in_progress' THEN 1 END) AS inprogress_count,
         COUNT(CASE WHEN STATUS = 'todo' THEN 1 END) AS todo_count`,
         )
