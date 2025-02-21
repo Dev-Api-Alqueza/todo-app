@@ -1,4 +1,10 @@
-import { IsBoolean, IsEnum, IsOptional, IsString } from "class-validator";
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from "class-validator";
 import {
   Column,
   CreateDateColumn,
@@ -12,6 +18,14 @@ import { Priority, Status, TaskType } from "./enums";
 export class Todo {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  @IsNumber()
+  userId: number;
+
+  @Column()
+  @IsString()
+  note: string;
 
   @Column()
   @IsString()

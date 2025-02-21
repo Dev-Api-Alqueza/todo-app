@@ -13,6 +13,7 @@ import {
   UpdateTodoDto,
   GetDateTodoDto,
   GetWeeklyTodoDto,
+  AddNoteByTaskDto,
 } from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
@@ -32,12 +33,49 @@ export class TodosController {
     return this.todosService.create(createTodoDto);
   }
 
-  @Post("completed")
-  async getAllCompletedTasks(
-    @Body() getDateDto: GetDateTodoDto,
-  ): Promise<GetCompletedTaskResponse[]> {
-    const task = await this.todosService.getAllCompletedTask(getDateDto);
+  // @Post("completed")
+  // async getAllCompletedTasks(
+  //   @Body() getDateDto: GetDateTodoDto,
+  // ): Promise<GetCompletedTaskResponse[]> {
+  //   const task = await this.todosService.getAllCompletedTask(getDateDto);
+  //   return task.length !== 0 ? task : [];
+  // }
+
+  @Get() //phase 3
+  async getAllTask(): Promise<any> {
+    return this.todosService.getAllTask();
+  }
+
+  @Get("summary") //phase 3
+  async getSummary(): Promise<GetSummaryResponse> {
+    return this.todosService.getSummary();
+  }
+
+  @Get("completed") //phase 3
+  async getAllCompletedTasks(): Promise<GetCompletedTaskResponse[]> {
+    const task = await this.todosService.getAllCompletedTask();
     return task.length !== 0 ? task : [];
+  }
+
+  @Get("backlog") //phase 3
+  async getAllBacklogTasks(): Promise<Todo[]> {
+    const task = await this.todosService.getAllBacklogTask();
+    return task.length !== 0 ? task : [];
+  }
+
+  @Get("today/incomplete") //phase 3
+  async getAllIncompleteTaskToday(): Promise<Todo[]> {
+    return this.todosService.getAllIncompleteTaskToday();
+  }
+
+  @Get("today/complete") //phase 3
+  async getAllTaskCompletedToday(): Promise<GetCompletedTaskResponse[]> {
+    return this.todosService.getAllCompletedTaskToday();
+  }
+
+  @Post("addNoteByTask") //phase 3
+  async addNoteByTask(@Body() addNoteDto: AddNoteByTaskDto): Promise<Todo> {
+    return this.todosService.addNoteByTask(addNoteDto);
   }
 
   @Post("getByDate")
@@ -57,11 +95,6 @@ export class TodosController {
     @Body() summaryDto: GetDateTodoDto,
   ): Promise<GetSummaryResponse> {
     return this.todosService.getSummaryTasks(summaryDto);
-  }
-
-  @Get()
-  async getAllTask(): Promise<Todo[]> {
-    return this.todosService.getAllTask();
   }
 
   @Get()

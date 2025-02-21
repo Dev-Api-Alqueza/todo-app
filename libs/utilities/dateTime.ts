@@ -11,3 +11,10 @@ export const effortBurnComputation = (updated: Date, completed: Date) => {
 
   return parseFloat(fractionalHours.toFixed(2));
 };
+
+export const formatDate = (value: Date) => {
+  const year = value.getFullYear().toString().padStart(2, "0");
+  const month = (value.getMonth() + 1).toString().padStart(2, "0");
+  const date = value.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${date}`;
+};
