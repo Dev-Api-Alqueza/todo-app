@@ -80,3 +80,10 @@ export class GetWeeklyTodoDto {
   @IsEnum(TaskType)
   category: TaskType = TaskType.SCHEDULED;
 }
+
+export class AddNoteByTaskDto {
+  @IsNumber()
+  id: number;
+  @IsString()
+  note: string;
+}

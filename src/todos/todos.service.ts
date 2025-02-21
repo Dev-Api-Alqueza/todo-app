@@ -6,13 +6,21 @@ import {
   GetSummaryResponse,
   GetWeeklyTaskResponse,
 } from "@todo-app/interfaces";
-import { effortBurnComputation } from "@todo-app/utilities";
-import { Repository } from "typeorm";
+import { effortBurnComputation, formatDate } from "@todo-app/utilities";
+import {
+  LessThanOrEqual,
+  IsNull,
+  Repository,
+  Not,
+  LessThan,
+  In,
+} from "typeorm";
 import {
   CreateTodoDto,
   UpdateTodoDto,
   GetDateTodoDto,
   GetWeeklyTodoDto,
+  AddNoteByTaskDto,
 } from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
@@ -53,17 +61,16 @@ export class TodosService {
     return todo;
   }
 
-  async getAllTask(): Promise<Todo[]> {
-    try {
-      const tasks = await this.todosRepository.find({
-        order: { completedAt: "ASC", priority: "ASC", createdAt: "ASC" },
-      });
-
-      return tasks;
-    } catch (err) {
-      throw err;
-    }
-  }
+  // async getAllTask(): Promise<Todo[]> {
+  //   try {
+  //     const tasks = await this.todosRepository.find({
+  //       order: { createdAt: "ASC" },
+  //     });
+  //     return tasks;
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
 
   async getAllTaskByDate(getTaskDto: GetDateTodoDto): Promise<Todo[]> {
     try {
@@ -98,7 +105,7 @@ export class TodosService {
           `DAYNAME(createdAt) AS day_of_week,
           DATE(createdAt) AS date,
           COUNT(CASE WHEN STATUS = 'completed' THEN 1 END) AS completed_count,
-          COUNT(CASE WHEN STATUS != 'completed' THEN 1 END) AS incomplete_count`
+          COUNT(CASE WHEN STATUS != 'completed' THEN 1 END) AS incomplete_count`,
         )
         .where(
           `category = :category 
@@ -106,12 +113,12 @@ export class TodosService {
             DATE_SUB(CURRENT_DATE, INTERVAL WEEKDAY(CURRENT_DATE) DAY)
             AND 
             DATE_ADD(DATE_SUB(CURRENT_DATE, INTERVAL WEEKDAY(CURRENT_DATE) DAY), INTERVAL 7 DAY)`,
-          { ...getWeekly }
+          { ...getWeekly },
         )
         .groupBy("DAYOFWEEK(createdAt), DATE(createdAt)")
         .orderBy("FIELD(DAYOFWEEK(createdAt), 2, 3, 4, 5, 6, 7, 1)")
-        .execute()) as TaskQueryResponse[];      
-  
+        .execute()) as TaskQueryResponse[];
+
       const result = DayOfTheWeek.reduce((acc, day) => {
         const dayData = tasks.find((item) => item.day_of_week === day);
         acc[day] = {
@@ -121,13 +128,12 @@ export class TodosService {
         };
         return acc;
       }, {});
-  
+
       return result;
     } catch (err) {
       throw err;
     }
   }
-  
 
   async getSummaryTasks(
     summaryDto: GetDateTodoDto,
@@ -138,18 +144,20 @@ export class TodosService {
         inprogress_count: string;
         todo_count: string;
       }
+
       const tasks = await this.todosRepository
         .createQueryBuilder("users_tasks")
         .select(
-        `COUNT(CASE WHEN STATUS = 'completed' THEN 1 END) AS completed_count,
-	      COUNT(CASE WHEN STATUS = 'in_progress' THEN 1 END) AS inprogress_count,
+          `COUNT(CASE WHEN STATUS = 'completed' THEN 1 END) AS completed_count,
+        COUNT(CASE WHEN STATUS = 'in_progress' THEN 1 END) AS inprogress_count,
         COUNT(CASE WHEN STATUS = 'todo' THEN 1 END) AS todo_count`,
         )
-        .where("Date(createdAt) = :created AND category = :category", {
+        .where("DATE(createdAt) <= DATE(CURRENT_DATE)", {
           created: summaryDto.date,
-          category: summaryDto.category,
+          // category: summaryDto.category,
         })
         .execute();
+
       const result = tasks.map((x: Summary) => ({
         completed: x.completed_count,
         inprogress: x.inprogress_count,
@@ -174,29 +182,214 @@ export class TodosService {
     }
   }
 
-  async getAllCompletedTask(
-    getTaskDto: GetDateTodoDto,
-  ): Promise<GetCompletedTaskResponse[]> {
-    const tasks = await this.todosRepository
-      .createQueryBuilder("users_tasks")
-      .where(
-        `status = :status AND DATE(completedAt) = :completed AND category = :category`,
-        {
-          status: Status.COMPLETED,
-          completed: getTaskDto.date,
-          category: getTaskDto.category,
-        },
-      )
-      .orderBy("category", "ASC")
-      .addOrderBy("priority", "ASC")
-      .getMany();
-    const filteredTask = tasks.map((item) => ({
-      ...item,
-      effortBurn: effortBurnComputation(item.updatedAt, item.completedAt),
-    }));
+  //phase 3
+  async getAllTask(): Promise<any> {
+    try {
+      const tasks = await this.todosRepository.find({
+        order: { createdAt: "ASC" },
+      });
+      // await this.todosRepository
+      //   .createQueryBuilder("users_tasks")
+      //   .update(`users_tasks`)
+      //   .set({ status: "todo" })
+      //   .where(`Date(createdAt) = Date(CURRENT_DATE)`)
+      //   .execute();
+      const filterByDate = tasks.reduce((acc, item) => {
+        const createdAtKey = formatDate(item.createdAt);
+        if (!acc[createdAtKey]) {
+          acc[createdAtKey] = [];
+        }
+        acc[createdAtKey].push({
+          ...item,
+        });
+        return acc;
+      }, {});
 
-    return filteredTask;
+      return filterByDate;
+    } catch (err) {
+      throw err;
+    }
   }
+
+  //phase 3
+  async getSummary(): Promise<GetSummaryResponse> {
+    try {
+      interface Summary {
+        completed_count: string;
+        inprogress_count: string;
+        todo_count: string;
+      }
+      const tasks = await this.todosRepository
+        .createQueryBuilder("users_tasks")
+        .select(
+          `COUNT(CASE WHEN DATE(createdAt) <= DATE(CURRENT_DATE) AND STATUS = "todo" THEN 1 END) AS todo_count,
+            COUNT(CASE WHEN DATE(createdAt) <= DATE(CURRENT_DATE) AND STATUS = "in_progress" THEN 1 END) AS inprogress_count,
+            COUNT(CASE WHEN DATE(createdAt) = DATE(CURRENT_DATE) AND STATUS = "completed" THEN 1 END) AS completed_count`,
+        )
+        .execute();
+
+      const result: GetSummaryResponse = tasks.map((x: Summary) => ({
+        completed: x.completed_count,
+        inprogress: x.inprogress_count,
+        todo: x.todo_count,
+      }));
+      return result[0];
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  //phase 3
+  async getAllCompletedTask(): Promise<GetCompletedTaskResponse[]> {
+    try {
+      const tasks = await this.todosRepository.find({
+        where: {
+          status: Status.COMPLETED,
+        },
+        order: {
+          completedAt: "ASC",
+          importance: "DESC",
+          priority: "ASC",
+        },
+      });
+      const filteredTask = tasks.map((item) => ({
+        ...item,
+        effortBurn: effortBurnComputation(item.updatedAt, item.completedAt),
+      }));
+
+      return filteredTask;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  //phase 3
+  async getAllBacklogTask(): Promise<Todo[]> {
+    try {
+      const tasks = await this.todosRepository.find({
+        where: {
+          status: Status.NOT_SET,
+        },
+        order: {
+          createdAt: "ASC",
+          importance: "DESC",
+          priority: "ASC",
+        },
+      });
+      return tasks;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  //phase 3
+  async getAllIncompleteTaskToday(): Promise<Todo[]> {
+    try {
+      //auto update of the task in current date
+      await this.todosRepository
+        .createQueryBuilder("users_tasks")
+        .update("users_tasks")
+        .set({ status: "todo" })
+        .where(`Date(createdAt) = Date(CURRENT_DATE) AND status = "not_set"`)
+        .execute();
+
+      const tasks = await this.todosRepository.find({
+        where: {
+          createdAt: LessThanOrEqual(new Date(formatDate(new Date()))),
+          status: Not(In([Status.COMPLETED, Status.NOT_SET])),
+        },
+        order: {
+          createdAt: "ASC",
+          importance: "DESC",
+          category: "ASC",
+          priority: "ASC",
+        },
+      });
+
+      return tasks;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  //phase 3
+  async getAllCompletedTaskToday(): Promise<GetCompletedTaskResponse[]> {
+    try {
+      const tasks = await this.todosRepository.find({
+        where: {
+          createdAt: new Date(formatDate(new Date())),
+          status: Status.COMPLETED,
+        },
+        order: {
+          completedAt: "ASC",
+          importance: "DESC",
+          category: "ASC",
+          priority: "ASC",
+        },
+      });
+      const filteredTask = tasks.map((item) => ({
+        ...item,
+        effortBurn: effortBurnComputation(item.updatedAt, item.completedAt),
+      }));
+
+      return filteredTask;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  //phase 3
+  async addNoteByTask(addNoteDto: AddNoteByTaskDto): Promise<Todo> {
+    try {
+      const existingNote = await this.todosRepository.findOne({
+        where: { id: addNoteDto.id },
+      });
+      existingNote.note = addNoteDto.note;
+      return await this.todosRepository.save(existingNote);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  // async createNote(createNoteDto: CreateTaskNoteDto): Promise<TaskNote> {
+  //     try {
+  //       const existingNote = await this.taskRepository.findOne({
+  //         where: { createdAt: createNoteDto.createdAt },
+  //       });
+  //       if (existingNote) {
+  //         existingNote.content = createNoteDto.content;
+  //         return await this.taskRepository.save(existingNote);
+  //       }
+  //       const createNote = this.taskRepository.create(createNoteDto);
+  //       return await this.taskRepository.save(createNote);
+  //     } catch (err) {
+  //       throw err;
+  //     }
+  //   }
+
+  // async getAllCompletedTask(
+  //   getTaskDto: GetDateTodoDto,
+  // ): Promise<GetCompletedTaskResponse[]> {
+  //   const tasks = await this.todosRepository
+  //     .createQueryBuilder("users_tasks")
+  //     .where(
+  //       `status = :status AND DATE(completedAt) = :completed AND category = :category`,
+  //       {
+  //         status: Status.COMPLETED,
+  //         completed: getTaskDto.date,
+  //         category: getTaskDto.category,
+  //       },
+  //     )
+  //     .orderBy("category", "ASC")
+  //     .addOrderBy("priority", "ASC")
+  //     .getMany();
+  //   const filteredTask = tasks.map((item) => ({
+  //     ...item,
+  //     effortBurn: effortBurnComputation(item.updatedAt, item.completedAt),
+  //   }));
+
+  //   return filteredTask;
+  // }
 
   async updateModalTask(updatePayload: UpdateTodoDto): Promise<Todo> {
     const { id } = await this.findOne(updatePayload.id);
