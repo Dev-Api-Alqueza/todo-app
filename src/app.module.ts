@@ -7,6 +7,8 @@ import { Todo } from "./todos/todos.entity";
 import { TodosModule } from "./todos/todos.module";
 import { TaskNote } from "./notes/taskNote.entity";
 import { TaskNoteModule } from "./notes/notes.module";
+import { UserModule } from "./user/user.module";
+import { User } from "./user/user.entity";
 
 @Module({
   imports: [
@@ -25,14 +27,15 @@ import { TaskNoteModule } from "./notes/notes.module";
           username: dbConfig.username,
           password: dbConfig.password,
           database: dbConfig.database,
-          entities: [Todo, TaskNote],
-          synchronize: process.env.NODE_ENV !== "productio",
+          entities: [Todo, TaskNote, User],
+          synchronize: process.env.NODE_ENV !== "production",
         };
       },
       inject: [ConfigService],
     }),
     TodosModule,
     TaskNoteModule,
+    UserModule,
   ],
 })
 export class AppModule {}
