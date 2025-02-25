@@ -18,6 +18,9 @@ export class CreateTodoDto {
   @MaxLength(255)
   title: string;
 
+  @IsNumber()
+  userId: number;
+
   @IsOptional()
   @IsString()
   description?: string;
