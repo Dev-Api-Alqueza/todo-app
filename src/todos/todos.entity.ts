@@ -5,13 +5,7 @@ import {
   IsOptional,
   IsString,
 } from "class-validator";
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { Priority, Status, TaskType } from "./enums";
 
 @Entity("users_tasks")
@@ -47,7 +41,7 @@ export class Todo {
   @Column({
     type: "enum",
     enum: Status,
-    default: Status.TODO,
+    default: Status.NOT_SET,
   })
   @IsEnum(Status)
   status: Status;

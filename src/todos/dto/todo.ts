@@ -1,6 +1,5 @@
 import {
   IsBoolean,
-  IsDate,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -31,7 +30,7 @@ export class CreateTodoDto {
 
   @IsOptional()
   @IsEnum(Status)
-  status?: Status = Status.TODO;
+  status?: Status = Status.NOT_SET;
 
   @IsOptional()
   @IsEnum(TaskType)
