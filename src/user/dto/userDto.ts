@@ -19,6 +19,9 @@ export class UserDto {
   suffix: string;
   @IsString()
   @IsOptional()
+  nickname: string;
+  @IsString()
+  @IsOptional()
   contactNo: string;
   @IsEnum(UserRole)
   @IsOptional()
