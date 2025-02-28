@@ -51,6 +51,11 @@ export class User {
   @Column()
   @IsString()
   @IsOptional()
+  nickname: string;
+
+  @Column()
+  @IsString()
+  @IsOptional()
   @MaxLength(12)
   contactNo: string;
 
