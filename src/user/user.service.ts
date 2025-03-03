@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   Put,
@@ -53,13 +54,18 @@ export class UserService {
     }
   }
 
-  async loginUser(loginDto: LoginDto) {
+  async loginUser(loginDto: LoginDto): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
         where: { ...loginDto },
       });
       if (!user) {
-        throw new NotFoundException(`User Not Found`);
+        throw new NotFoundException(`Incorrect Username or Password`);
+      }
+      if (user.isActive === false) {
+        throw new ForbiddenException(
+          `User is inactive please contact admin to activate.`,
+        );
       }
       return user;
     } catch (err) {

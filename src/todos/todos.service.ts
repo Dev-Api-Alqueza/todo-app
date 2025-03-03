@@ -183,9 +183,10 @@ export class TodosService {
   }
 
   //phase 3
-  async getAllTask(): Promise<any> {
+  async getAllTask(userId: number): Promise<any> {
     try {
       const tasks = await this.todosRepository.find({
+        where: { userId },
         order: { createdAt: "ASC" },
       });
       // await this.todosRepository
@@ -212,7 +213,7 @@ export class TodosService {
   }
 
   //phase 3
-  async getSummary(): Promise<GetSummaryResponse> {
+  async getSummary(userId: number): Promise<GetSummaryResponse> {
     try {
       interface Summary {
         completed_count: string;
@@ -226,6 +227,7 @@ export class TodosService {
             COUNT(CASE WHEN DATE(createdAt) <= DATE(CURRENT_DATE) AND STATUS = "in_progress" THEN 1 END) AS inprogress_count,
             COUNT(CASE WHEN DATE(createdAt) = DATE(CURRENT_DATE) AND STATUS = "completed" THEN 1 END) AS completed_count`,
         )
+        .where("userId = :userId", { userId })
         .execute();
 
       const result: GetSummaryResponse = tasks.map((x: Summary) => ({
@@ -240,12 +242,12 @@ export class TodosService {
   }
 
   //phase 3
-  async getAllCompletedTask(): Promise<GetCompletedTaskResponse[]> {
+  async getAllCompletedTask(
+    userId: number,
+  ): Promise<GetCompletedTaskResponse[]> {
     try {
       const tasks = await this.todosRepository.find({
-        where: {
-          status: Status.COMPLETED,
-        },
+        where: { userId, status: Status.COMPLETED },
         order: {
           completedAt: "ASC",
           importance: "DESC",
@@ -264,12 +266,10 @@ export class TodosService {
   }
 
   //phase 3
-  async getAllBacklogTask(): Promise<Todo[]> {
+  async getAllBacklogTask(userId: number): Promise<Todo[]> {
     try {
       const tasks = await this.todosRepository.find({
-        where: {
-          status: Status.NOT_SET,
-        },
+        where: { userId, status: Status.NOT_SET },
         order: {
           createdAt: "ASC",
           importance: "DESC",
@@ -283,18 +283,22 @@ export class TodosService {
   }
 
   //phase 3
-  async getAllIncompleteTaskToday(): Promise<Todo[]> {
+  async getAllIncompleteTaskToday(userId: number): Promise<Todo[]> {
     try {
       //auto update of the task in current date
       await this.todosRepository
         .createQueryBuilder("users_tasks")
         .update("users_tasks")
         .set({ status: "todo" })
-        .where(`Date(createdAt) = Date(CURRENT_DATE) AND status = "not_set"`)
+        .where(
+          `Date(createdAt) = Date(CURRENT_DATE) AND status = "not_set" AND userId = :userId`,
+          { userId },
+        )
         .execute();
 
       const tasks = await this.todosRepository.find({
         where: {
+          userId,
           createdAt: LessThanOrEqual(new Date(formatDate(new Date()))),
           status: Not(In([Status.COMPLETED, Status.NOT_SET])),
         },
@@ -313,10 +317,13 @@ export class TodosService {
   }
 
   //phase 3
-  async getAllCompletedTaskToday(): Promise<GetCompletedTaskResponse[]> {
+  async getAllCompletedTaskToday(
+    userId: number,
+  ): Promise<GetCompletedTaskResponse[]> {
     try {
       const tasks = await this.todosRepository.find({
         where: {
+          userId,
           createdAt: new Date(formatDate(new Date())),
           status: Status.COMPLETED,
         },
