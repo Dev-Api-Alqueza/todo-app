@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -41,36 +43,48 @@ export class TodosController {
   //   return task.length !== 0 ? task : [];
   // }
 
-  @Get() //phase 3
-  async getAllTask(): Promise<any> {
-    return this.todosService.getAllTask();
+  @Get(":userId") //phase 3
+  async getAllTask(
+    @Param("userId", ParseIntPipe) userId: number,
+  ): Promise<any> {
+    return this.todosService.getAllTask(userId);
   }
 
-  @Get("summary") //phase 3
-  async getSummary(): Promise<GetSummaryResponse> {
-    return this.todosService.getSummary();
+  @Get("summary/:userId") //phase 3
+  async getSummary(
+    @Param("userId", ParseIntPipe) userId: number,
+  ): Promise<GetSummaryResponse> {
+    return this.todosService.getSummary(userId);
   }
 
-  @Get("completed") //phase 3
-  async getAllCompletedTasks(): Promise<GetCompletedTaskResponse[]> {
-    const task = await this.todosService.getAllCompletedTask();
+  @Get("completed/:userId") //phase 3
+  async getAllCompletedTasks(
+    @Param("userId") userId: number,
+  ): Promise<GetCompletedTaskResponse[]> {
+    const task = await this.todosService.getAllCompletedTask(userId);
     return task.length !== 0 ? task : [];
   }
 
-  @Get("backlog") //phase 3
-  async getAllBacklogTasks(): Promise<Todo[]> {
-    const task = await this.todosService.getAllBacklogTask();
+  @Get("backlog/:userId") //phase 3
+  async getAllBacklogTasks(
+    @Param("userId", ParseIntPipe) userId: number,
+  ): Promise<Todo[]> {
+    const task = await this.todosService.getAllBacklogTask(userId);
     return task.length !== 0 ? task : [];
   }
 
-  @Get("today/incomplete") //phase 3
-  async getAllIncompleteTaskToday(): Promise<Todo[]> {
-    return this.todosService.getAllIncompleteTaskToday();
+  @Get("today/incomplete/:userId") //phase 3
+  async getAllIncompleteTaskToday(
+    @Param("userId", ParseIntPipe) userId: number,
+  ): Promise<Todo[]> {
+    return this.todosService.getAllIncompleteTaskToday(userId);
   }
 
-  @Get("today/complete") //phase 3
-  async getAllTaskCompletedToday(): Promise<GetCompletedTaskResponse[]> {
-    return this.todosService.getAllCompletedTaskToday();
+  @Get("today/complete/:userId") //phase 3
+  async getAllTaskCompletedToday(
+    @Param("userId") userId: number,
+  ): Promise<GetCompletedTaskResponse[]> {
+    return this.todosService.getAllCompletedTaskToday(userId);
   }
 
   @Post("addNoteByTask") //phase 3
