@@ -321,19 +321,17 @@ export class TodosService {
     userId: number,
   ): Promise<GetCompletedTaskResponse[]> {
     try {
-      const tasks = await this.todosRepository.find({
-        where: {
-          userId,
-          createdAt: new Date(formatDate(new Date())),
-          status: Status.COMPLETED,
-        },
-        order: {
-          completedAt: "ASC",
-          importance: "DESC",
-          category: "ASC",
-          priority: "ASC",
-        },
-      });
+      const tasks = await this.todosRepository
+        .createQueryBuilder("users_tasks")
+        .where(
+          `Date(completedAt) = Date(CURRENT_DATE) AND userId = :userID AND status = "completed"`,
+          { userID: userId },
+        )
+        .orderBy("completedAt", "ASC")
+        .addOrderBy("importance", "DESC")
+        .addOrderBy("category", "ASC")
+        .addOrderBy("priority", "ASC")
+        .getMany();
       const filteredTask = tasks.map((item) => ({
         ...item,
         effortBurn: effortBurnComputation(item.updatedAt, item.completedAt),
