@@ -9,7 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./user.entity";
 import { Repository } from "typeorm";
 import { DisableUserResponse } from "@todo-app/interfaces";
-import { LoginDto, UserDto } from "./dto";
+import { ChangePasswordDto, LoginDto, UserDto } from "./dto";
 
 @Injectable()
 export class UserService {
@@ -103,6 +103,37 @@ export class UserService {
     try {
       await this.findId(id);
       const user = await this.userRepository.update(id, updateDto);
+      return user as any as User;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async updatePassword(changePassDto: ChangePasswordDto): Promise<User> {
+    try {
+      await this.findUsername(changePassDto.username);
+      const checkUser = this.loginUser({
+        username: changePassDto.username,
+        password: changePassDto.oldPassword,
+      });
+      if (!checkUser) {
+        throw new ForbiddenException(`Incorrect Password`);
+      }
+      const user = await this.userRepository.update(changePassDto.username, {
+        password: changePassDto.newPassword,
+      });
+      return user as any as User;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async resetPassword(id: number): Promise<User> {
+    try {
+      await this.findId(id);
+      const user = await this.userRepository.update(id, {
+        password: "user123",
+      });
       return user as any as User;
     } catch (err) {
       throw err;
