@@ -5,8 +5,8 @@ import {
   GetCompletedTaskResponse,
   GetSummaryResponse,
   GetWeeklyTaskResponse,
-} from "@todo-app/interfaces";
-import { effortBurnComputation, formatDate } from "@todo-app/utilities";
+} from "../../libs/interfaces";
+import { effortBurnComputation, formatDate } from "../../libs/utilities";
 import {
   LessThanOrEqual,
   IsNull,
@@ -24,7 +24,7 @@ import {
 } from "./dto";
 import { Priority, Status, TaskType } from "./enums";
 import { Todo } from "./todos.entity";
-import { DayOfTheWeek } from "@todo-app/constants";
+import { DayOfTheWeek } from "../../libs/constants";
 
 @Injectable()
 export class TodosService {

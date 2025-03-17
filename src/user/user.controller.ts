@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { User } from "./user.entity";
-import { DisableUserResponse } from "@todo-app/interfaces";
+import { DisableUserResponse } from "../../libs/interfaces";
 import { ChangePasswordDto, LoginDto, UserDto } from "./dto";
 
 @Controller("user")

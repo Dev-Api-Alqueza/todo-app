@@ -24,7 +24,7 @@ import {
   GetCompletedTaskResponse,
   GetSummaryResponse,
   GetWeeklyTaskResponse,
-} from "@todo-app/interfaces";
+} from "../../libs/interfaces";
 
 @Controller("todos")
 export class TodosController {

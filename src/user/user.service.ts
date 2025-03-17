@@ -8,7 +8,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./user.entity";
 import { Repository } from "typeorm";
-import { DisableUserResponse } from "@todo-app/interfaces";
+import { DisableUserResponse } from "../../libs/interfaces";
 import { ChangePasswordDto, LoginDto, UserDto } from "./dto";
 
 @Injectable()
