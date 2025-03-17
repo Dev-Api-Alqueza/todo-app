@@ -4,7 +4,8 @@ import * as cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
 
-async function bootstrap() {
+// Vercel handler export
+export default async function handler(req, res) {
   const app = await NestFactory.create(AppModule, { cors: true });
   const apiPrefix = "api";
 
@@ -14,15 +15,14 @@ async function bootstrap() {
   app.enableCors({ credentials: true });
 
   app.useGlobalPipes(
-    //automatically throws an exception
     new ValidationPipe({
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
     }),
   );
-  await app.listen(process.env.PORT ?? 3001);
-}
-bootstrap();
 
-export { bootstrap };
+  // Vercel functions expect the handler to respond to requests
+  await app.init();
+  app.getHttpAdapter().getInstance().handle(req, res);
+}
