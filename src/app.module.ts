@@ -9,6 +9,7 @@ import { TaskNote } from "./notes/taskNote.entity";
 import { TaskNoteModule } from "./notes/notes.module";
 import { UserModule } from "./user/user.module";
 import { User } from "./user/user.entity";
+import { AppController } from "./app.controller";
 
 @Module({
   imports: [
@@ -37,5 +38,6 @@ import { User } from "./user/user.entity";
     TaskNoteModule,
     UserModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}

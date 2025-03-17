@@ -81,7 +81,8 @@
     ],
     "moduleNameMapper": {
       "^@todo-app/utilities(|/.*)$": "<rootDir>/libs/utilities/",
-      "^@todo-app/constants(|/.*)$": "<rootDir>/libs/constants/"
+      "^@todo-app/constants(|/.*)$": "<rootDir>/libs/constants/",
+      "^@todo-app/interfaces(|/.*)$": "<rootDir>/libs/interfaces/"
     }
   }
 }
