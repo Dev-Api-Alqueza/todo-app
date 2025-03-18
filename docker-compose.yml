@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   nest-app:
-    image: ghcr.io/Dev-MLW-Bombita/todo-app:latest
+    image: ghcr.io/Jom527/todo-app:latest
     restart: always
     env_file: .env
     ports:
